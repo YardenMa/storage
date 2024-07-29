@@ -25,6 +25,7 @@ reader:
 
 train:
   epochs: 5
+  batch_sync_frequency: 10
   computation_time: 0.323
 
 checkpoint:
