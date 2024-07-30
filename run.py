@@ -21,15 +21,14 @@ def main():
     parser.add_argument("--acc", type=int, default=3, help="Number of accelerators per instance")
     parser.add_argument("--readers", type=int, default=4, help="Number of readers per gpu")
     parser.add_argument("--outdir", type=str, default="results", help="Output directory for the results")
+    parser.add_argument('--dryrun', action='store_true', help="dryrun flag")
+
     args = parser.parse_args()
 
 
     for i in range(args.start, args.end, args.jump):
         ips_subset = ip_list[:i]
         files = get_num_of_files(args.acc, i)
-
-        print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Running mlperf with {i} instances and {args.acc * i} gpus. Number of files: {files}")
-        
         cmd = ["./benchmark.sh", "run",
                         "--hosts", ",".join(ips_subset),
                         "--workload", "unet3d",
@@ -41,7 +40,12 @@ def main():
                         "--param", f"reader.read_threads={args.readers}", 
                         "--param", "dataset.num_subfolders_train=100",
                         "--param", "checkpoint.checkpoint_folder=/mnt/volumez/checkpoint"]
-        print(f"Running command: {' '.join(cmd)}")
+        print(f"\nCommand to run mlperf with {i} instances and {args.acc * i} gpus ({files} files):\n{' '.join(cmd)}")
+
+        if args.dryrun:
+            continue
+
+        print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Running mlperf with {i} instances and {args.acc * i} gpus. Number of files: {files}")
         out = subprocess.run(cmd, stderr=subprocess.DEVNULL)
         print(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] mlperf with {i} instances and {args.acc*i} gpus is done")
         
