@@ -18,15 +18,25 @@ def main():
     parser.add_argument("start", type=int, help="Starting number of instances")
     parser.add_argument("--end", type=int, default=len(ip_list), help="Ending number of instances")
     parser.add_argument("--jump", type=int, default=1, help="The jump in nodes count")
+    parser.add_argument("--power2", action='store_true', help="jumps in power of 2")
     parser.add_argument("--acc", type=int, default=3, help="Number of accelerators per instance")
     parser.add_argument("--readers", type=int, default=4, help="Number of readers per gpu")
     parser.add_argument("--outdir", type=str, default="results", help="Output directory for the results")
     parser.add_argument('--dryrun', action='store_true', help="dryrun flag")
+    parser.add_argument('--epochs', type=int, help="amount of epochs to run for each instance")
 
     args = parser.parse_args()
 
-
-    for i in range(args.start, args.end, args.jump):
+    r = range(args.start, args.end, args.jump)
+    if args.power2:
+        r = []
+        curr_start = 1
+        while curr_start < args.end:
+            if curr_start >= args.start:
+                r.append(curr_start)
+            curr_start *= 2
+            
+    for i in r:
         ips_subset = ip_list[:i]
         files = get_num_of_files(args.acc, i)
         cmd = ["./benchmark.sh", "run",
@@ -40,6 +50,9 @@ def main():
                         "--param", f"reader.read_threads={args.readers}", 
                         "--param", "dataset.num_subfolders_train=100",
                         "--param", "checkpoint.checkpoint_folder=/mnt/volumez/checkpoint"]
+        
+        if args.epochs:
+            cmd.extend(["--param", f"train.epochs={args.epochs}"])
         print(f"\nCommand to run mlperf with {i} instances and {args.acc * i} gpus ({files} files):\n{' '.join(cmd)}")
 
         if args.dryrun:

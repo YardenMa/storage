@@ -25,7 +25,8 @@ CLOSED_CATEGORY_PARAMS=(
 	"checkpoint.checkpoint_folder"
 	# storage params
 	"storage.storage_type" "storage.storage_root"
-	"train.epochs")
+	# train params
+	"train.epochs" "train.batch_sync_frequency")
 
 OPEN_CATEGORY_PARAMS=(
 	# all closed params
