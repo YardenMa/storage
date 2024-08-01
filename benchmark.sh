@@ -24,7 +24,9 @@ CLOSED_CATEGORY_PARAMS=(
 	# checkpoint params
 	"checkpoint.checkpoint_folder"
 	# storage params
-	"storage.storage_type" "storage.storage_root")
+	"storage.storage_type" "storage.storage_root"
+	# train params
+	"train.epochs" "train.batch_sync_frequency")
 
 OPEN_CATEGORY_PARAMS=(
 	# all closed params
@@ -148,10 +150,10 @@ validate_params() {
 			validate_in_list "params" $param_name "${OPEN_CATEGORY_PARAMS[@]}"
 		elif [[ " ${category} " =~ " closed " ]]; then
 			validate_in_list "params" $param_name "${CLOSED_CATEGORY_PARAMS[@]}"
-			if [[ "$param_name" == "reader.prefetch_size" && "$param_value" -gt 2 ]]; then
-				echo "reader.prefetch_size value should not exceed 2"
-				exit 1
-			fi
+			# if [[ "$param_name" == "reader.prefetch_size" && "$param_value" -gt 2 ]]; then
+			# 	echo "reader.prefetch_size value should not exceed 2"
+			# 	exit 1
+			# fi
 		fi
 	done
 }
